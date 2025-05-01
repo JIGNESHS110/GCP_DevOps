@@ -16,3 +16,4 @@ steps:
   - --namespace=gcp-devops-prod
 options:
   logging: CLOUD_LOGGING_ONLY
+
