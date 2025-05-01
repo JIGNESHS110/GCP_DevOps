@@ -1,7 +1,13 @@
-apiVersiom: apps/v1
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gcp-devops-prod
+---
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gke-devops-gke  
+  name: gcp-devops-gke
+  namespace: gcp-devops-prod  # ← Add this to match the Service namespace
 spec:
   replicas: 1
   selector:
@@ -13,10 +19,26 @@ spec:
         app: gcp
     spec:
       containers:
-      - name: gke-devops-gke
+      - name: gcp-devops-gke
         image: gcr.io/kodekloud-gcp-training/test-gcpdevops:latest
         ports:
         - containerPort: 5000
         env:
-        - name: PORT
-          value: "5000"
+          - name: PORT
+            value: "5000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gcp-devops-gke-service
+  namespace: gcp-devops-prod
+  labels:
+    app.kubernetes.io/managed-by: gcp-cloud-build-deploy
+spec:
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5000
+  selector:
+    app: gcp
+  type: LoadBalancer
